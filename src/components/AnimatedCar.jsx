@@ -18,8 +18,10 @@ export default function AnimatedCar({ curve, speed = CAR_SPEED }) {
 
     // Slope sampling along the direction of travel.
     const flatTangent = new THREE.Vector3(tangent.x, 0, tangent.z).normalize();
+
     const aheadX = point.x + flatTangent.x * SLOPE_SAMPLE_DISTANCE;
     const aheadZ = point.z + flatTangent.z * SLOPE_SAMPLE_DISTANCE;
+    
     const behindX = point.x - flatTangent.x * SLOPE_SAMPLE_DISTANCE;
     const behindZ = point.z - flatTangent.z * SLOPE_SAMPLE_DISTANCE;
 
@@ -36,8 +38,8 @@ export default function AnimatedCar({ curve, speed = CAR_SPEED }) {
 
     const yaw = Math.atan2(tangent.x, tangent.z);
     car.current.rotation.set(pitch, yaw, 0, "YXZ");
-
     car.current.position.y += Math.sin(state.clock.elapsedTime * 11) * 0.035;
+
   });
 
   return (

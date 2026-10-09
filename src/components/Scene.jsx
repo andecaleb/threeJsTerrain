@@ -35,6 +35,7 @@ export default function Scene() {
       <Terrain />
       <Road curve={curve} />
       <Scenery />
+      
       <AnimatedCar curve={curve} />
 
       {/* Big ground plane, well past the fog far distance. */}
