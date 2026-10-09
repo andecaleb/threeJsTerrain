@@ -6,6 +6,7 @@ import Terrain from "./Terrain";
 import Road from "./Road";
 import Scenery from "./Scenery";
 import AnimatedCar from "./AnimatedCar";
+import Sky from "./Sky";
 
 export default function Scene() {
   const { terrain } = useTerrain();
@@ -13,7 +14,7 @@ export default function Scene() {
 
   return (
     <group key={terrain.id}>
-      <color attach="background" args={[terrain.background]} />
+      {/* No <color attach="background"> needed – the sky dome covers it. */}
       <fog
         attach="fog"
         args={[terrain.fog.color, terrain.fog.near, terrain.fog.far]}
@@ -29,13 +30,16 @@ export default function Scene() {
       />
       <hemisphereLight args={["#dbeeff", "#63784b", 0.5]} />
 
+      <Sky horizonColor={terrain.fog.color} topColor={terrain.skyTop} />
+
       <Terrain />
       <Road curve={curve} />
       <Scenery />
       <AnimatedCar curve={curve} />
 
+      {/* Big ground plane, well past the fog far distance. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -7, 0]} receiveShadow>
-        <planeGeometry args={[500, 500]} />
+        <planeGeometry args={[4000, 4000]} />
         <meshStandardMaterial color={terrain.groundPlaneColor} roughness={1} />
       </mesh>
 

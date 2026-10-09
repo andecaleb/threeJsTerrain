@@ -2,6 +2,7 @@ export const rollingHills = {
   id: "rollingHills",
   name: "Rolling Hills",
   background: "#b9d1df",
+  skyTop: "#7fb2d4", // deep sky blue
   fog: { color: "#b9d1df", near: 65, far: 145 },
   groundPlaneColor: "#50634a",
   palette: {
