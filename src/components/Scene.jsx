@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { OrbitControls } from "@react-three/drei";
+import { useTerrain } from "../context/TerrainContext";
 import { createRoadCurve } from "../utils/createRoadCurve";
 import Terrain from "./Terrain";
 import Road from "./Road";
@@ -7,12 +8,16 @@ import Scenery from "./Scenery";
 import AnimatedCar from "./AnimatedCar";
 
 export default function Scene() {
-  const curve = useMemo(() => createRoadCurve(), []);
+  const { terrain } = useTerrain();
+  const curve = useMemo(() => createRoadCurve(terrain), [terrain]);
 
   return (
-    <>
-      <color attach="background" args={["#b9d1df"]} />
-      <fog attach="fog" args={["#b9d1df", 65, 145]} />
+    <group key={terrain.id}>
+      <color attach="background" args={[terrain.background]} />
+      <fog
+        attach="fog"
+        args={[terrain.fog.color, terrain.fog.near, terrain.fog.far]}
+      />
 
       <ambientLight intensity={0.72} />
       <directionalLight
@@ -29,10 +34,9 @@ export default function Scene() {
       <Scenery />
       <AnimatedCar curve={curve} />
 
-      {/* Ground plane far below to catch the fog. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -7, 0]} receiveShadow>
         <planeGeometry args={[500, 500]} />
-        <meshStandardMaterial color="#50634a" roughness={1} />
+        <meshStandardMaterial color={terrain.groundPlaneColor} roughness={1} />
       </mesh>
 
       <OrbitControls
@@ -42,6 +46,6 @@ export default function Scene() {
         maxDistance={100}
         maxPolarAngle={Math.PI / 2.05}
       />
-    </>
+    </group>
   );
 }

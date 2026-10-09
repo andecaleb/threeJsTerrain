@@ -1,45 +1,51 @@
 import React, { useMemo } from "react";
-import { terrainHeight } from "../utils/terrainHeight";
+import { useTerrain } from "../context/TerrainContext";
 
 export default function Scenery() {
+  const { terrain } = useTerrain();
+
   const trees = useMemo(() => {
     const items = [];
-    // Deterministic pseudo-random scatter; keep a clear margin around the road.
     let seed = 9182;
     const random = () => {
       seed = (seed * 16807) % 2147483647;
       return (seed - 1) / 2147483646;
     };
 
-    for (let i = 0; i < 95; i++) {
+    const { density, avoidCenter } = terrain.tree;
+    for (let i = 0; i < density; i++) {
       const x = (random() - 0.5) * 88;
       const z = (random() - 0.5) * 88;
-      if (Math.abs(x) < 12 && Math.abs(z) < 12) continue;
-      items.push({ x, z, scale: 0.65 + random() * 0.8 });
+      if (Math.abs(x) < avoidCenter.x && Math.abs(z) < avoidCenter.z) continue;
+
+      // Skip submerged spots (helps archipelago look right).
+      const y = terrain.height(x, z);
+      if (y < -0.2) continue;
+
+      items.push({ x, z, y, scale: 0.65 + random() * 0.8 });
     }
     return items;
-  }, []);
+  }, [terrain]);
+
+  const { trunk, foliageA, foliageB } = terrain.tree;
 
   return (
-    <group>
-      {trees.map((tree, i) => {
-        const y = terrainHeight(tree.x, tree.z);
-        return (
-          <group key={i} position={[tree.x, y, tree.z]} scale={tree.scale}>
-            <mesh castShadow position={[0, 0.8, 0]}>
-              <cylinderGeometry args={[0.13, 0.22, 1.6, 7]} />
-              <meshStandardMaterial color="#59452e" roughness={1} />
-            </mesh>
-            <mesh castShadow position={[0, 2.0, 0]}>
-              <coneGeometry args={[0.9, 2.4, 7]} />
-              <meshStandardMaterial
-                color={i % 3 === 0 ? "#345b38" : "#426c3c"}
-                roughness={1}
-              />
-            </mesh>
-          </group>
-        );
-      })}
+    <group key={terrain.id}>
+      {trees.map((tree, i) => (
+        <group key={i} position={[tree.x, tree.y, tree.z]} scale={tree.scale}>
+          <mesh castShadow position={[0, 0.8, 0]}>
+            <cylinderGeometry args={[0.13, 0.22, 1.6, 7]} />
+            <meshStandardMaterial color={trunk} roughness={1} />
+          </mesh>
+          <mesh castShadow position={[0, 2.0, 0]}>
+            <coneGeometry args={[0.9, 2.4, 7]} />
+            <meshStandardMaterial
+              color={i % 3 === 0 ? foliageA : foliageB}
+              roughness={1}
+            />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }

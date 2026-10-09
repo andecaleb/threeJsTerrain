@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
 import * as THREE from "three";
 import { ROAD_WIDTH, ROAD_EDGE_SAMPLES } from "../constants";
-import { terrainHeight } from "../utils/terrainHeight";
+import { useTerrain } from "../context/TerrainContext";
 
 export default function RoadEdges({ curve }) {
+  const { terrain } = useTerrain();
+
   const edgeGeometry = useMemo(() => {
     const vertices = [];
     const indices = [];
@@ -18,7 +20,7 @@ export default function RoadEdges({ curve }) {
       for (const sign of [-1, 1]) {
         const x = p.x + side.x * edgeOffset * sign;
         const z = p.z + side.z * edgeOffset * sign;
-        vertices.push(x, terrainHeight(x, z) + 0.48, z);
+        vertices.push(x, terrain.height(x, z) + 0.48, z);
       }
       if (i < ROAD_EDGE_SAMPLES) {
         const a = i * 2;
@@ -31,7 +33,7 @@ export default function RoadEdges({ curve }) {
     geo.setIndex(indices);
     geo.computeVertexNormals();
     return geo;
-  }, [curve]);
+  }, [curve, terrain]);
 
   return (
     <mesh geometry={edgeGeometry}>

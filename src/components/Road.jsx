@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import * as THREE from "three";
 import { ROAD_WIDTH, ROAD_SAMPLES } from "../constants";
-import { terrainHeight } from "../utils/terrainHeight";
+import { useTerrain } from "../context/TerrainContext";
 import RoadEdges from "./RoadEdges";
 
 export default function Road({ curve }) {
+  const { terrain } = useTerrain();
+
   const geometry = useMemo(() => {
     const vertices = [];
     const indices = [];
@@ -16,11 +18,10 @@ export default function Road({ curve }) {
       const tangent = curve.getTangentAt(t).normalize();
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
 
-      // Keep the road seated on the terrain and let its edges follow the hill.
       for (const edge of [-1, 1]) {
         const x = point.x + side.x * ROAD_WIDTH * 0.5 * edge;
         const z = point.z + side.z * ROAD_WIDTH * 0.5 * edge;
-        vertices.push(x, terrainHeight(x, z) + 0.42, z);
+        vertices.push(x, terrain.height(x, z) + 0.42, z);
         uv.push(edge === -1 ? 0 : 1, t * 24);
       }
 
@@ -36,7 +37,7 @@ export default function Road({ curve }) {
     geo.setIndex(indices);
     geo.computeVertexNormals();
     return geo;
-  }, [curve]);
+  }, [curve, terrain]);
 
   return (
     <group>
